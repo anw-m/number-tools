@@ -4,23 +4,22 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <limits.h>
 
-// FORMATS MASK FOR READING THE LEAST BITS
+// FORMATS MASKS FOR READING THE BITS
 typedef enum format
 {
    BIN = 0x1,
    OCT = 0x7,
    HEX = 0xF
 } FORMAT;
-// ASCII VALUES FOR 0 TO F
+// ASCII VALUES FROM 0 TO F
 const char HEX_CHAR_ANALOGS[] = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70};
 
-/* Read any C integer type (from char to long) to a BINARY, OCTAL, HEX String
+/* Read  C long casted numbers to  BINARY, OCTAL, HEX String
 No conversion calculus - Just read the numbers as they are on the user machine
-Warning : No type error checking if input a too large value for long type. Will 
-always return what you get. On negatives : the 2 complement as it type-encoded
+Warning : No type error checking if an input is a too large value for long type. Will 
+always return what you get. On negatives return the 2 complement as it is
 */
 char *ToBinFormat(long num, FORMAT format)
 {
@@ -37,14 +36,14 @@ char *ToBinFormat(long num, FORMAT format)
       step = 4;
    }
 
-   // Length of the result
+   // Length of the result string
    const int max_len = bits / step + bits % step;
 
    char *ptr_arr;
    // max_len + 1 string with 0 char at the end
    ptr_arr = (char *)calloc(max_len + 1, sizeof(char));
    int i = max_len;
-   // Reading the bits step by step and pushing their ASCII symbols in the result string
+   // Reading the bits step by step and pushing their ASCII symbols in the char array
    while (i--)
    {
       ptr_arr[i] = HEX_CHAR_ANALOGS[num & format];
@@ -57,7 +56,6 @@ char *ToBinFormat(long num, FORMAT format)
 int main()
 {
 
- 
    long a;
    char *result;
 
