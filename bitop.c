@@ -5,123 +5,110 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
+// FORMATS MASK FOR READING THE LEAST BITS
+typedef enum format
+{
+   BIN = 0x1,
+   OCT = 0x7,
+   HEX = 0xF
+} FORMAT;
+// ASCII VALUES FOR 0 TO F
 const char HEX_CHAR_ANALOGS[] = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70};
 
-/* max positive size for the num input 32 bits = 4294967295
-   @return a binary string
+/* Read any C integer type (from char to long) to a BINARY, OCTAL, HEX String
+No conversion calculus - Just read the numbers as they are on the user machine
+Warning : No type error checking if input a too large value for long type. Will 
+always return what you get. On negatives : the 2 complement as it type-encoded
 */
-char *ToBin(long num)
+char *ToBinFormat(long num, FORMAT format)
 {
-
-   // fixing shift operations on negative numbers -
-   num = num & 0xFFFFFFFF;
-   /* 
-      Each loop read 1 bit and left-concat the ASCII char analogs in a dynamic char array.
-      The looping ends when the 0 value is reached
-    */
-   int len = 0;
-   const size_t SIZE = sizeof(char);
-   char *final = NULL;
-   do
+   // Size of the long type
+   int bits = sizeof(long) * __CHAR_BIT__;
+   // Step reading value - inited @ 1 for BIN format
+   int step = 1;
+   if (format == OCT)
    {
-      char *arr = malloc(SIZE * (len + 1));
-      char item[] = {HEX_CHAR_ANALOGS[num & 0x1]};
-
-      memcpy(arr, item, SIZE);
-
-      if (len)
-      {
-         memcpy(arr + SIZE, final, len * SIZE);
-      }
-      final = arr;
-      len++;
-
-   } while (num = num >> 1);
-
-   return (char *)final;
-}
-
-/* max positive size for the num input 32 bits = 4294967295
-   @return a headecimal string
-*/
-
-char *ToHex(long num)
-{
-
-   // fixing shift operations on negative numbers
-   num = num & 0xFFFFFFFF;
-   /* 
-      Each loop read 4 bit and left-concat the ASCII char analogs in a dynamic char array.      
-      The loop ends when the 0 value is reached
-    */
-   int len = 0;
-   const size_t SIZE = sizeof(char);
-   char *final = NULL;
-   do
+      step = 3;
+   }
+   else if (format == HEX)
    {
-      char *arr = malloc(SIZE * (len + 1));
-      char item[] = {HEX_CHAR_ANALOGS[num & 0xF]};
+      step = 4;
+   }
 
-      memcpy(arr, item, SIZE);
+   // Length of the result
+   const int max_len = bits / step + bits % step;
 
-      if (len)
-      {
-         memcpy(arr + SIZE, final, len * SIZE);
-      }
-      final = arr;
-      len++;
-
-   } while (num = num >> 4);
-
-   return (char *)final;
-}
-
-/* max positive size for the num input 32 bits = 4294967295
-   @return an octal string
-*/
-char *ToOct(long num)
-{
-
-   // fixing shift operations on negative numbers
-   num = num & 0xFFFFFFFF;
-   /*       
-      Each loop read 3 bit and left-concat the ASCII char analogs in a dynamic char array.
-      The loop ends when the 0 value is reached
-    */
-   int len = 0;
-   const size_t SIZE = sizeof(char);
-   char *final = NULL;
-   do
+   char *ptr_arr;
+   // max_len + 1 string with 0 char at the end
+   ptr_arr = (char *)calloc(max_len + 1, sizeof(char));
+   int i = max_len;
+   // Reading the bits step by step and pushing their ASCII symbols in the result string
+   while (i--)
    {
-      char *arr = malloc(SIZE * (len + 1));
-      char item[] = {HEX_CHAR_ANALOGS[num & 0x7]};
+      ptr_arr[i] = HEX_CHAR_ANALOGS[num & format];
+      num = num >> step;
+   }
 
-      memcpy(arr, item, SIZE);
-
-      if (len)
-      {
-         memcpy(arr + SIZE, final, len * SIZE);
-      }
-      final = arr;
-      len++;
-
-   } while (num = num >> 3);
-
-   return (char *)final;
+   return (char *)ptr_arr;
 }
 
 int main()
 {
 
+ 
    long a;
+   char *result;
 
    printf("Input any long integer\n");
    scanf("%ld", &a);
 
-   printf("*************************************************\n");
+   result = ToBinFormat(a, BIN);
+   printf("BIN %s\n", result);
+   free(result);
 
-   printf("binary, octals, hex output of %ld are  %s - %s - %s\n", a, ToBin(a), ToOct(a), ToHex(a));
+   result = ToBinFormat(a, OCT);
+   printf("OCT %s\n", result);
+   free(result);
+
+   result = ToBinFormat(a, HEX);
+   printf("HEX %s\n", result);
+   free(result);
+
+   printf("***********************ON SOME LIMIT VALUES**************************\n");
+   printf("LONG_MAX    :   %ld\n", (long)LONG_MAX);
+   result = ToBinFormat(LONG_MAX, BIN);
+   printf("BIN %s\n", result);
+   free(result);
+   result = ToBinFormat(LONG_MAX, OCT);
+   printf("OCT %s\n", result);
+   free(result);
+   result = ToBinFormat(LONG_MAX, HEX);
+   printf("HEX %s\n", result);
+   free(result);
+
+   printf("LONG_MAX    :   %ld\n", (long)LONG_MIN);
+   result = ToBinFormat(LONG_MIN, BIN);
+   printf("BIN %s\n", result);
+   free(result);
+   result = ToBinFormat(LONG_MIN, OCT);
+   printf("OCT %s\n", result);
+   free(result);
+   result = ToBinFormat(LONG_MIN, HEX);
+   printf("HEX %s\n", result);
+   free(result);
+
+   printf("ULONG_MAX   :   %lu\n", (long)ULONG_MAX);
+   result = ToBinFormat(ULONG_MAX, BIN);
+   printf("BIN %s\n", result);
+   free(result);
+   result = ToBinFormat(ULONG_MAX, OCT);
+   printf("OCT %s\n", result);
+   free(result);
+   result = ToBinFormat(ULONG_MAX, HEX);
+   printf("HEX %s\n", result);
+   free(result);
 
    return 0;
 }
