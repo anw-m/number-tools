@@ -19,7 +19,7 @@ const char HEX_CHAR_ANALOGS[] = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66,
 /* Read  C long casted numbers to  BINARY, OCTAL, HEX String
 No conversion calculus - Just read the numbers as they are on the user machine
 Warning : No type error checking if an input is a too large value for long type. Will 
-always return what you get. On negatives return the 2 complement as it is
+always return what you get.
 */
 char *ToBinFormat(long num, FORMAT format)
 {
@@ -36,20 +36,30 @@ char *ToBinFormat(long num, FORMAT format)
       step = 4;
    }
 
-   // Length of the result string
-   const int max_len = bits / step + bits % step;
+   // Number of iterations : bits/step + 1 in case of Octal
+   int i = bits / step;
+   int remain = bits % step;
+   int j = remain ? 1 : 0;
+   const int max_len = i + j;
 
    char *ptr_arr;
    // max_len + 1 string with 0 char at the end
    ptr_arr = (char *)calloc(max_len + 1, sizeof(char));
-   int i = max_len;
+
    // Reading the bits step by step and pushing their ASCII symbols in the char array
    while (i--)
    {
-      ptr_arr[i] = HEX_CHAR_ANALOGS[num & format];
+      ptr_arr[j + i] = HEX_CHAR_ANALOGS[num & format];
       num = num >> step;
    }
 
+   // Program ends here for BIN + HEX cases
+   if (!remain)
+   {
+      return (char *)ptr_arr;
+   }
+   //Last read on remain bits for Octal
+   ptr_arr[0] = HEX_CHAR_ANALOGS[num & (format >> (step - remain))];
    return (char *)ptr_arr;
 }
 
