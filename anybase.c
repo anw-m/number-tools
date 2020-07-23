@@ -16,7 +16,7 @@ const char ASCII_CHAR_ANALOGS[] = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 6
 const size_t SIZE = sizeof(char);
 // CONVERTS ANY BASE 10 NUMBER TO (ALMOST) ANY ARBITRARY base STRING AND RETURN IT
 // MAX BASE LIMITED BY THE CONVERSION TABLE SIZE
-// See README.md for more details
+// See https://github.com/anw-m/number-tools/wiki/ToAnyBase for more details
 char *ToAnyBase(unsigned long num, unsigned long base)
 {
     int len = 0;
